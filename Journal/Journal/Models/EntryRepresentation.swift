@@ -7,3 +7,11 @@
 //
 
 import Foundation
+
+struct EntryRepresentation: Codable, Equatable {
+    let title: String
+    let bodyText: String?
+    let timeStamp: Date
+    let identifier: String
+    let mood: String
+}

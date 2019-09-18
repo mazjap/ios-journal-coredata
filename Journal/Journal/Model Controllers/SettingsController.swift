@@ -12,11 +12,11 @@ class SettingsController {
     
     var settings: Settings = Settings(isDarkMode: false)
     
-    func loadFromPersistantStore() {
+    func loadFromPersistentStore() {
         
     }
     
-    func saveToPersistantStore() {
+    func saveToPersistentStore() {
         
     }
 }
