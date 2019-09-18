@@ -26,11 +26,11 @@ class EntryController {
     
     func put(entry: Entry, completion: @escaping () -> Void = { }) {
         
-        let identifier = entry.identifier ?? UUID()
+        let identifier = entry.identifier ?? UUID().uuidString
         entry.identifier = identifier
         
         let requestURL = baseURL
-            .appendingPathComponent(identifier.uuidString)
+            .appendingPathComponent(identifier)
             .appendingPathExtension("json")
         
         var request = URLRequest(url: requestURL)
@@ -57,13 +57,11 @@ class EntryController {
                 completion()
                 return
             }
-            
             completion()
         }.resume()
     }
     
     func fetchEntriesFromServer(completion: @escaping () -> Void = { }) {
-        
         let requestURL = baseURL.appendingPathExtension("json")
         
         var request = URLRequest(url: requestURL)
@@ -84,9 +82,7 @@ class EntryController {
             
             do {
                 let decoder = JSONDecoder()
-                
                 let entryReprentations = try decoder.decode([String: EntryRepresentation].self, from: data).map({ $0.value })
-                
                 self.updateEntries(with: entryReprentations)
                 
             } catch {
@@ -94,6 +90,20 @@ class EntryController {
             }
             
         }.resume()
+    }
+    
+    func fetchSingleEntryFromPersistentStore(identifier: String) -> Entry? {
+        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "identifier == %@")
+        
+        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataStack.shared.mainContext, sectionNameKeyPath: "identifier", cacheName: nil)
+        
+        do {
+            try frc.performFetch()
+            return frc.object(at: IndexPath(row: 0, section: 0))
+        } catch {
+            fatalError("Error performing fetch for frc: \(error)")
+        }
     }
     
     func saveToPersistentStore() {
@@ -109,45 +119,31 @@ class EntryController {
     func createEntry(with title: String, bodyText: String, mood: EntryMood) -> Entry {
         let entry = Entry(title: title, bodyText: bodyText, mood: mood, context: CoreDataStack.shared.mainContext)
         saveToPersistentStore()
+        put(entry: entry)
         return entry
     }
     
     func updateEntries(with representations: [EntryRepresentation]) {
-        
         let identifiersToFetch = representations.compactMap({ UUID(uuidString: $0.identifier) })
-        
-        // [UUID: TaskRepresentation]
-        
         let representationsByID = Dictionary(uniqueKeysWithValues: zip(identifiersToFetch, representations))
-        
-        // Make a mutable copy of the dictionary above
         var entriesToCreate = representationsByID
         
         do {
             let context = CoreDataStack.shared.mainContext
-            
             let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-            
-            // identifier == \(identifier)
-            fetchRequest.predicate = NSPredicate(format: "identifier IN %@", identifiersToFetch)
-            
-            // Which of these tasks exist in Core Data already?
+            fetchRequest.predicate = NSPredicate(format: "identifier == %@", identifiersToFetch)
             let existingEntries = try context.fetch(fetchRequest)
-            
-            // Which need to be updated? Which need to be put into Core Data?
             for entry in existingEntries {
                 guard let identifier = entry.identifier,
-                    // This gets the task representation that corresponds to the task from Core Data
-                    let representation = representationsByID[identifier] else { continue }
+                    let representation = representationsByID[UUID(uuidString: identifier) ?? UUID()] else { continue }
                 
                 entry.title = representation.title
                 entry.bodyText = representation.bodyText
                 entry.mood = representation.mood
                 
-                entriesToCreate.removeValue(forKey: identifier)
+                entriesToCreate.removeValue(forKey: UUID(uuidString: identifier) ?? UUID())
             }
             
-            // Take the tasks that AREN'T in Core Data and create new ones for them.
             for representation in entriesToCreate.values {
                 Entry(entryRepresentation: representation, context: context)
             }
@@ -159,6 +155,14 @@ class EntryController {
         }
     }
     
+    func update(entry: Entry, entryRep: EntryRepresentation) {
+        entry.title = entryRep.title
+        entry.bodyText = entryRep.bodyText
+        entry.timeStamp = entryRep.timeStamp
+        entry.mood = entryRep.mood
+        entry.identifier = entryRep.identifier
+    }
+    
     func updateEntry(entry: Entry, with title: String, bodyText: String, mood: EntryMood) {
         entry.title = title
         entry.bodyText = bodyText
@@ -166,6 +170,7 @@ class EntryController {
         entry.timeStamp = Date()
         
         saveToPersistentStore()
+        put(entry: entry)
     }
     
     func deleteEntry(entry: Entry) {
