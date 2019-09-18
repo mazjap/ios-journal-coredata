@@ -10,7 +10,7 @@ import UIKit
 
 class EntryTableViewCell: UITableViewCell {
     
-    var isDarkMode: Bool?
+    var settingsController: SettingsController?
     var entry: Entry? {
         didSet {
             updateViews()
@@ -36,12 +36,12 @@ class EntryTableViewCell: UITableViewCell {
     }
     
     func setUI() {
-        if let isDarkMode = isDarkMode, isDarkMode {
-            backgroundColor = .background
+        if let settingsController = settingsController, settingsController.settings.isDarkMode {
+            backgroundColor = .darkBackground
             
-            titleLabel.textColor = .textColor
-            journalEntryLabel.textColor = .textColor
-            dateLabel.textColor = .textColor
+            titleLabel.textColor = .darkTextColor
+            journalEntryLabel.textColor = .darkTextColor
+            dateLabel.textColor = .darkTextColor
         } else {
             backgroundColor = .white
             

@@ -16,12 +16,12 @@ enum EntryMood: String, CaseIterable {
 }
 
 extension Entry {
-    convenience init(title: String, bodyText: String, mood: EntryMood = .😐, context: NSManagedObjectContext) {
+    convenience init(title: String, bodyText: String, mood: EntryMood = .😐, identifier: UUID = UUID(), context: NSManagedObjectContext) {
         self.init(context: context)
         self.title = title
         self.bodyText = bodyText
         self.timeStamp = Date()
-        self.identifier = "Entry\(Int.random(in: 1...5000))"
+        self.identifier = identifier
         self.mood = mood.rawValue
     }
 }

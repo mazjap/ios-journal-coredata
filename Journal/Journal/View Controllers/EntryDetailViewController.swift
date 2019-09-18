@@ -10,7 +10,7 @@ import UIKit
 
 class EntryDetailViewController: UIViewController {
     
-    var isDarkMode: Bool?
+    var settingsController: SettingsController?
     var entryController: EntryController?
     var entry: Entry? {
         didSet {
@@ -38,23 +38,23 @@ class EntryDetailViewController: UIViewController {
     }
     
     func setUI() {
-        if let isDarkMode = isDarkMode, isDarkMode {
-            navigationController?.navigationBar.barTintColor = .background
-            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.textColor]
-            navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.textColor]
+        if let settingsController = settingsController, settingsController.settings.isDarkMode {
+            navigationController?.navigationBar.barTintColor = .darkBackground
+            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
+            navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
             
-            titleTextField.backgroundColor = .textFieldBackground
+            titleTextField.backgroundColor = .darkTextFieldBackground
             titleTextField.attributedPlaceholder = NSAttributedString(string: "Enter Title:",
                 attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-            titleTextField.textColor = .textColor
+            titleTextField.textColor = .darkTextColor
             
             journalEntryTextView.layer.borderWidth = 0.5
             journalEntryTextView.layer.borderColor = UIColor(displayP3Red: 0.2, green: 0.2, blue: 0.2, alpha: 0.3).cgColor
             journalEntryTextView.layer.cornerRadius = 6
-            journalEntryTextView.backgroundColor = .textFieldBackground
-            journalEntryTextView.textColor = .textColor
+            journalEntryTextView.backgroundColor = .darkTextFieldBackground
+            journalEntryTextView.textColor = .darkTextColor
             
-            view.backgroundColor = .background
+            view.backgroundColor = .darkBackground
         } else {
             navigationController?.navigationBar.barTintColor = .white
             navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
@@ -63,13 +63,13 @@ class EntryDetailViewController: UIViewController {
             titleTextField.backgroundColor = .lightGray
             titleTextField.attributedPlaceholder = NSAttributedString(string: "Enter Title:",
                                                                       attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
-            titleTextField.textColor = .textColor
+            titleTextField.textColor = .darkTextColor
             
             journalEntryTextView.layer.borderWidth = 0.5
             journalEntryTextView.layer.borderColor = UIColor(displayP3Red: 0.2, green: 0.2, blue: 0.2, alpha: 0.3).cgColor
             journalEntryTextView.layer.cornerRadius = 6
             journalEntryTextView.backgroundColor = .lightGray
-            journalEntryTextView.textColor = .textColor
+            journalEntryTextView.textColor = .darkTextColor
             
             view.backgroundColor = .white
         }

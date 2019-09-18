@@ -11,12 +11,11 @@ import CoreData
 
 class EntriesTableViewController: UITableViewController {
     
-    var isDarkMode: Bool = false
-    
     @IBOutlet weak var darkModeButton: UIBarButtonItem!
     @IBOutlet weak var noEntriesLabel: UILabel!
     
     let entryController = EntryController()
+    let settingsController = SettingsController()
     
     lazy var fetchRequestController: NSFetchedResultsController<Entry> = {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
@@ -56,21 +55,21 @@ class EntriesTableViewController: UITableViewController {
     }
     
     func setUI() {
-        if isDarkMode {
-            navigationController?.navigationBar.barTintColor = .background
-            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.textColor]
-            navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.textColor]
-            navigationController?.navigationBar.tintColor = .textColor
-            darkModeButton.tintColor = .textColor
+        if settingsController.settings.isDarkMode {
+            navigationController?.navigationBar.barTintColor = .darkBackground
+            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
+            navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
+            navigationController?.navigationBar.tintColor = .darkTextColor
+            darkModeButton.tintColor = .darkTextColor
         
-            noEntriesLabel.backgroundColor = .background
-            noEntriesLabel.textColor = .textColor
+            noEntriesLabel.backgroundColor = .darkBackground
+            noEntriesLabel.textColor = .darkTextColor
             
-            view.backgroundColor = .background
+            view.backgroundColor = .darkBackground
         } else {
-            navigationController?.navigationBar.barTintColor = .white
-            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
-            navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+            navigationController?.navigationBar.barTintColor = .lightBackground
+            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.lightTextColor]
+            navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.lightTextColor]
             navigationController?.navigationBar.tintColor = UIColor(red:0.07, green:0.42, blue:1.00, alpha:1.00)
             darkModeButton.tintColor = .black
             
@@ -96,7 +95,7 @@ class EntriesTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "JournalCell", for: indexPath) as? EntryTableViewCell else { return UITableViewCell() }
         
-        cell.isDarkMode = isDarkMode
+        cell.settingsController = settingsController
         cell.entry = fetchRequestController.object(at: indexPath)
 
         return cell
@@ -110,14 +109,28 @@ class EntriesTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let sectionInfo = fetchRequestController.sections?[section] else { return nil }
-        
-        return sectionInfo.name.capitalized
+
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 20))
+        if settingsController.settings.isDarkMode {
+            returnedView.backgroundColor = .darkSectionHeaderBackground
+        } else {
+            returnedView.backgroundColor = .lightSectionHeaderBackground
+        }
+
+        let label = UILabel(frame: CGRect(x: 18, y: 3.5, width: returnedView.frame.width, height: returnedView.frame.height))
+
+        label.text = sectionInfo.name.capitalized
+        returnedView.addSubview(label)
+
+        return returnedView
     }
 
+
     @IBAction func toggleDarkMode(_ sender: Any) {
-        isDarkMode = !isDarkMode
+        settingsController.settings.isDarkMode = !settingsController.settings.isDarkMode
+        settingsController.saveToPersistentStore()
         setUI()
     }
     
@@ -128,13 +141,13 @@ class EntriesTableViewController: UITableViewController {
         if segue.identifier == "ShowJournalDetailSegue" {
             guard let detailVC = segue.destination as? EntryDetailViewController,
                 let indexPath = tableView.indexPathForSelectedRow else { return }
-            detailVC.isDarkMode = isDarkMode
+            detailVC.settingsController = settingsController
             detailVC.entryController = entryController
             detailVC.entry = fetchRequestController.object(at: indexPath)
         } else if segue.identifier == "ShowAddJournalSegue" {
             guard let detailVC = segue.destination as? EntryDetailViewController else { return }
             detailVC.entryController = entryController
-            detailVC.isDarkMode = isDarkMode
+            detailVC.settingsController = settingsController
         }
     }
 }
