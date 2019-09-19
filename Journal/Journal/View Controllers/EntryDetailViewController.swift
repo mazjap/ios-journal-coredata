@@ -38,7 +38,7 @@ class EntryDetailViewController: UIViewController {
     }
     
     func setUI() {
-        if let settingsController = settingsController, settingsController.settings.isDarkMode {
+        if let settingsController = settingsController, settingsController.isDarkMode {
             navigationController?.navigationBar.barTintColor = .darkBackground
             navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
             navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.darkTextColor]

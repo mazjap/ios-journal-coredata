@@ -36,7 +36,7 @@ class EntryTableViewCell: UITableViewCell {
     }
     
     func setUI() {
-        if let settingsController = settingsController, settingsController.settings.isDarkMode {
+        if let settingsController = settingsController, settingsController.isDarkMode {
             backgroundColor = .darkBackground
             
             titleLabel.textColor = .darkTextColor
