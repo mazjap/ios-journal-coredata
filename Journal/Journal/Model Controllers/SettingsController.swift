@@ -10,13 +10,18 @@ import Foundation
 
 class SettingsController {
     
-    var settings: Settings = Settings(isDarkMode: false)
+    let userDefaults = UserDefaults.standard
+    var isDarkMode = false
+    
+    init() {
+        loadFromPersistentStore()
+    }
     
     func loadFromPersistentStore() {
-        
+        isDarkMode = UserDefaults.standard.bool(forKey: "darkMode")
     }
     
     func saveToPersistentStore() {
-        
+        userDefaults.set(isDarkMode, forKey: "darkMode")
     }
 }

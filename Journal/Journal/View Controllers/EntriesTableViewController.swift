@@ -55,7 +55,7 @@ class EntriesTableViewController: UITableViewController {
     }
     
     func setUI() {
-        if settingsController.settings.isDarkMode {
+        if settingsController.isDarkMode {
             navigationController?.navigationBar.barTintColor = .darkBackground
             navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
             navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.darkTextColor]
@@ -113,7 +113,7 @@ class EntriesTableViewController: UITableViewController {
         guard let sectionInfo = fetchRequestController.sections?[section] else { return nil }
 
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 20))
-        if settingsController.settings.isDarkMode {
+        if settingsController.isDarkMode {
             returnedView.backgroundColor = .darkSectionHeaderBackground
         } else {
             returnedView.backgroundColor = .lightSectionHeaderBackground
@@ -129,7 +129,7 @@ class EntriesTableViewController: UITableViewController {
 
 
     @IBAction func toggleDarkMode(_ sender: Any) {
-        settingsController.settings.isDarkMode = !settingsController.settings.isDarkMode
+        settingsController.isDarkMode = !settingsController.isDarkMode
         settingsController.saveToPersistentStore()
         setUI()
     }

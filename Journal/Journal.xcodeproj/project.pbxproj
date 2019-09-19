@@ -20,10 +20,8 @@
 		0E4F3E8D23302409006156A0 /* EntryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E4F3E8C23302409006156A0 /* EntryController.swift */; };
 		0E4F3E9023304889006156A0 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E4F3E8F23304889006156A0 /* Colors.swift */; };
 		0E8615BD2331857000FC82D7 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E8615BC2331856500FC82D7 /* Default-568h@2x.png */; };
-		0E8615C02331CBD600FC82D7 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8615BF2331CBD600FC82D7 /* SettingsController.swift */; };
-		0E8615C22331EA2700FC82D7 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8615C12331EA2700FC82D7 /* Settings.swift */; };
-		0E8615C5233297A700FC82D7 /* Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8615C4233297A700FC82D7 /* Codable.swift */; };
 		0E8615C92332C26000FC82D7 /* EntryRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8615C82332C26000FC82D7 /* EntryRepresentation.swift */; };
+		0E8615CC23330D9600FC82D7 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8615CB23330D9600FC82D7 /* SettingsController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,11 +41,9 @@
 		0E4F3E8F23304889006156A0 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		0E8615BC2331856500FC82D7 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		0E8615BE2331861200FC82D7 /* Entries 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Entries 2.xcdatamodel"; sourceTree = "<group>"; };
-		0E8615BF2331CBD600FC82D7 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
-		0E8615C12331EA2700FC82D7 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
-		0E8615C4233297A700FC82D7 /* Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Codable.swift; sourceTree = "<group>"; };
 		0E8615C82332C26000FC82D7 /* EntryRepresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryRepresentation.swift; sourceTree = "<group>"; };
 		0E8615CA2332C27900FC82D7 /* Entries 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Entries 3.xcdatamodel"; sourceTree = "<group>"; };
+		0E8615CB23330D9600FC82D7 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,7 +122,6 @@
 				0E4F3E84233022A3006156A0 /* Entry+Convenience.swift */,
 				0E4F3E87233022C7006156A0 /* CoreDataStack.swift */,
 				0E4F3E8923302309006156A0 /* Entries.xcdatamodeld */,
-				0E8615C12331EA2700FC82D7 /* Settings.swift */,
 				0E8615C82332C26000FC82D7 /* EntryRepresentation.swift */,
 			);
 			path = Models;
@@ -136,7 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				0E4F3E8C23302409006156A0 /* EntryController.swift */,
-				0E8615BF2331CBD600FC82D7 /* SettingsController.swift */,
+				0E8615CB23330D9600FC82D7 /* SettingsController.swift */,
 			);
 			path = "Model Controllers";
 			sourceTree = "<group>";
@@ -145,7 +140,6 @@
 			isa = PBXGroup;
 			children = (
 				0E4F3E8F23304889006156A0 /* Colors.swift */,
-				0E8615C4233297A700FC82D7 /* Codable.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -222,17 +216,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E8615CC23330D9600FC82D7 /* SettingsController.swift in Sources */,
 				0E4F3E85233022A3006156A0 /* Entry+Convenience.swift in Sources */,
 				0E4F3E9023304889006156A0 /* Colors.swift in Sources */,
-				0E8615C5233297A700FC82D7 /* Codable.swift in Sources */,
 				0E4F3E7C23301D93006156A0 /* EntriesTableViewController.swift in Sources */,
 				0E4F3E8023301E21006156A0 /* EntryTableViewCell.swift in Sources */,
 				0E4F3E8B23302309006156A0 /* Entries.xcdatamodeld in Sources */,
 				0E4F3E88233022C7006156A0 /* CoreDataStack.swift in Sources */,
-				0E8615C02331CBD600FC82D7 /* SettingsController.swift in Sources */,
 				0E4F3E6A2330183C006156A0 /* AppDelegate.swift in Sources */,
 				0E4F3E8D23302409006156A0 /* EntryController.swift in Sources */,
-				0E8615C22331EA2700FC82D7 /* Settings.swift in Sources */,
 				0E4F3E7E23301DAC006156A0 /* EntryDetailViewController.swift in Sources */,
 				0E8615C92332C26000FC82D7 /* EntryRepresentation.swift in Sources */,
 			);
