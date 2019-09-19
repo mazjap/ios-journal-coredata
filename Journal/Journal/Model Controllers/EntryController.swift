@@ -82,18 +82,10 @@ class EntryController {
             
             do {
                 let decoder = JSONDecoder()
-                let entryReprentations = try decoder.decode([String: EntryRepresentation].self, from: data).map({ $0.value })
+                let entryRepresentations = try decoder.decode([String: EntryRepresentation].self, from: data).map({ $0.value })
                 
-                for i in 0...entryReprentations.count-1 {
-                    if let entry = self.fetchSingleEntryFromPersistentStore(identifier: entryReprentations[i].identifier) {
-                        if entry != entryReprentations[i] {
-                            self.update(entry: entry, entryRep: entryReprentations[i])
-                        }
-                    } else {
-                        self.createEntry(with: entryReprentations[i].title, bodyText: entryReprentations[i].bodyText ?? "", mood: EntryMood(rawValue: entryReprentations[i].mood) ?? EntryMood.😐)
-                    }
-                }
-                self.saveToPersistentStore()
+                self.updateEntries(with: entryRepresentations)
+                self.save()
                 
             } catch {
                 NSLog("Error decoding: \(error)")
@@ -102,7 +94,7 @@ class EntryController {
         }.resume()
     }
     
-    func fetchSingleEntryFromPersistentStore(identifier: String) -> Entry? {
+    func fetchSingleEntryFromPersistentStore(identifier: String, context: NSManagedObjectContext) -> Entry? {
         var tempEntry: Entry?
         
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
@@ -159,19 +151,36 @@ class EntryController {
         }.resume()
     }
     
-    func saveToPersistentStore() {
-        do {
-            try CoreDataStack.shared.mainContext.save()
-        } catch {
-            NSLog("Error saving context: \(error)")
-            CoreDataStack.shared.mainContext.reset()
+    func save(context: NSManagedObjectContext = CoreDataStack.shared.mainContext) {
+        context.performAndWait {
+            do {
+                try context.save()
+            } catch {
+                NSLog("Error saving context: \(error)")
+                context.reset()
+            }
+        }
+    }
+    
+    func updateEntries(with entryRepresentations: [EntryRepresentation]) {
+        let context = CoreDataStack.shared.container.newBackgroundContext()
+        context.performAndWait {
+            for i in 0...entryRepresentations.count-1 {
+                if let entry = self.fetchSingleEntryFromPersistentStore(identifier: entryRepresentations[i].identifier, context: CoreDataStack.shared.mainContext) {
+                    if entry != entryRepresentations[i] {
+                        self.update(entry: entry, entryRep: entryRepresentations[i])
+                    }
+                } else {
+                    self.createEntry(with: entryRepresentations[i].title, bodyText: entryRepresentations[i].bodyText ?? "", mood: EntryMood(rawValue: entryRepresentations[i].mood) ?? EntryMood.😐)
+                }
+            }
         }
     }
     
     @discardableResult
     func createEntry(with title: String, bodyText: String, mood: EntryMood) -> Entry {
         let entry = Entry(title: title, bodyText: bodyText, mood: mood, context: CoreDataStack.shared.mainContext)
-        saveToPersistentStore()
+        save()
         put(entry: entry)
         return entry
     }
@@ -190,13 +199,13 @@ class EntryController {
         entry.mood = mood.rawValue
         entry.timeStamp = Date()
         
-        saveToPersistentStore()
+        save()
         put(entry: entry)
     }
     
     func deleteEntry(entry: Entry) {
         CoreDataStack.shared.mainContext.delete(entry)
         deleteEntryFromServer(entry: entry)
-        saveToPersistentStore()
+        save()
     }
 }
