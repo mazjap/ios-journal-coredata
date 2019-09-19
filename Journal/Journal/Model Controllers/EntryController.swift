@@ -83,7 +83,17 @@ class EntryController {
             do {
                 let decoder = JSONDecoder()
                 let entryReprentations = try decoder.decode([String: EntryRepresentation].self, from: data).map({ $0.value })
-                self.updateEntries(with: entryReprentations)
+                
+                for i in 0...entryReprentations.count-1 {
+                    if let entry = self.fetchSingleEntryFromPersistentStore(identifier: entryReprentations[i].identifier) {
+                        if entry != entryReprentations[i] {
+                            self.update(entry: entry, entryRep: entryReprentations[i])
+                        }
+                    } else {
+                        self.createEntry(with: entryReprentations[i].title, bodyText: entryReprentations[i].bodyText ?? "", mood: EntryMood(rawValue: entryReprentations[i].mood) ?? EntryMood.😐)
+                    }
+                }
+                self.saveToPersistentStore()
                 
             } catch {
                 NSLog("Error decoding: \(error)")
@@ -93,17 +103,60 @@ class EntryController {
     }
     
     func fetchSingleEntryFromPersistentStore(identifier: String) -> Entry? {
+        var tempEntry: Entry?
+        
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "identifier == %@")
+        fetchRequest.predicate = NSPredicate(format: "identifier == %@", identifier)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "identifier", ascending: true)]
         
         let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataStack.shared.mainContext, sectionNameKeyPath: "identifier", cacheName: nil)
         
         do {
             try frc.performFetch()
-            return frc.object(at: IndexPath(row: 0, section: 0))
+            
+            tempEntry = frc.object(at: IndexPath(row: 0, section: 0))
         } catch {
-            fatalError("Error performing fetch for frc: \(error)")
+            NSLog("Error performing fetch for frc: \(error)")
         }
+        
+        return tempEntry
+    }
+    
+    func deleteEntryFromServer(entry: Entry, completion: @escaping () -> Void = { }) {
+        
+        let identifier = entry.identifier ?? UUID().uuidString
+        entry.identifier = identifier
+        
+        let requestURL = baseURL
+            .appendingPathComponent(identifier)
+            .appendingPathExtension("json")
+        
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = HTTPMethod.delete.rawValue
+        
+        guard let entryRepresentation = entry.entryRepresentation else {
+            NSLog("Entry Representation is nil")
+            completion()
+            return
+        }
+        
+        do {
+            request.httpBody = try JSONEncoder().encode(entryRepresentation)
+        } catch {
+            NSLog("Error encoding entry representation: \(error)")
+            completion()
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { (_, _, error) in
+            
+            if let error = error {
+                NSLog("Error Deleting entry: \(error)")
+                completion()
+                return
+            }
+            completion()
+        }.resume()
     }
     
     func saveToPersistentStore() {
@@ -121,38 +174,6 @@ class EntryController {
         saveToPersistentStore()
         put(entry: entry)
         return entry
-    }
-    
-    func updateEntries(with representations: [EntryRepresentation]) {
-        let identifiersToFetch = representations.compactMap({ UUID(uuidString: $0.identifier) })
-        let representationsByID = Dictionary(uniqueKeysWithValues: zip(identifiersToFetch, representations))
-        var entriesToCreate = representationsByID
-        
-        do {
-            let context = CoreDataStack.shared.mainContext
-            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "identifier == %@", identifiersToFetch)
-            let existingEntries = try context.fetch(fetchRequest)
-            for entry in existingEntries {
-                guard let identifier = entry.identifier,
-                    let representation = representationsByID[UUID(uuidString: identifier) ?? UUID()] else { continue }
-                
-                entry.title = representation.title
-                entry.bodyText = representation.bodyText
-                entry.mood = representation.mood
-                
-                entriesToCreate.removeValue(forKey: UUID(uuidString: identifier) ?? UUID())
-            }
-            
-            for representation in entriesToCreate.values {
-                Entry(entryRepresentation: representation, context: context)
-            }
-            
-            saveToPersistentStore()
-            
-        } catch {
-            NSLog("Error fetching entries from persistent store: \(error)")
-        }
     }
     
     func update(entry: Entry, entryRep: EntryRepresentation) {
@@ -175,6 +196,7 @@ class EntryController {
     
     func deleteEntry(entry: Entry) {
         CoreDataStack.shared.mainContext.delete(entry)
+        deleteEntryFromServer(entry: entry)
         saveToPersistentStore()
     }
 }
